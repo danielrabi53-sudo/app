@@ -218,16 +218,17 @@ public class MainActivity extends Activity {
 
         private void drawGameCard(Canvas c, int i, float x, float y, float cw, float ch, boolean active) {
             int a = accents[i];
-            int base = new int[]{Color.rgb(21, 58, 57), Color.rgb(48, 38, 83), Color.rgb(73, 48, 34), Color.rgb(28, 48, 78), Color.rgb(76, 34, 59)}[i];
+            int base = new int[]{Color.rgb(21, 58, 57), Color.rgb(48, 38, 83), Color.rgb(73, 48, 34), Color.rgb(28, 48, 78), Color.rgb(76, 34, 59), Color.rgb(77, 27, 68), Color.rgb(77, 49, 19)}[i];
             gradient(c, x, y, x + cw, y + ch, 18, base, Color.rgb(20, 26, 46));
             if (active) strokeRound(c, x + 1, y + 1, x + cw - 1, y + ch - 1, 18, a, 2);
             else strokeRound(c, x + .5f, y + .5f, x + cw - .5f, y + ch - .5f, 18, 0x253F547A, 1);
             circle(c, x + cw - 21, y + 20, 23, 0x18FFFFFF);
             drawMiniIcon(c, i, x + cw - 34, y + 35, 22, a);
             text(c, tags[i], x + 14, y + 20, 8, a, true, Paint.Align.LEFT);
-            text(c, titles[i], x + 14, y + 78, 15, white, true, Paint.Align.LEFT);
-            text(c, subtitles[i], x + 14, y + 96, 9, muted, false, Paint.Align.LEFT);
-            round(c, x + 14, y + 105, x + 53, y + 109, 2, a);
+            float titleY = y + Math.min(78, ch - 29);
+            text(c, titles[i], x + 14, titleY, 14, white, true, Paint.Align.LEFT);
+            text(c, subtitles[i], x + 14, titleY + 15, 8, muted, false, Paint.Align.LEFT);
+            round(c, x + 14, y + ch - 9, x + 53, y + ch - 5, 2, a);
             if (active) circle(c, x + cw - 14, y + ch - 14, 3, a);
         }
 
@@ -250,9 +251,12 @@ public class MainActivity extends Activity {
             } else if (i == 3) {
                 circle(c, x, y, 12, 0x333B9BFF); circle(c, x, y, 8, a); circle(c, x, y, 3, white);
                 line(c, x - 17, y + 11, x - 10, y + 4, a, 2);
+            } else if (i == 4) {
+                circle(c, x, y, 13, 0x33FF6F9F); circle(c, x, y, 8, a); circle(c, x, y, 3, white);
+            } else if (i == 5) {
+                int[] gc = {0xFFFF5B8D,0xFFFFC857,0xFF4DE3C1,0xFF7D8CFF}; for(int j=0;j<4;j++)circle(c,x-12+(j%2)*15,y-8+(j/2)*15,6,gc[j]); circle(c,x+11,y+9,5,white);
             } else {
-                circle(c, x, y, 13, 0x33FF6F9F);
-                circle(c, x, y, 8, a); circle(c, y < 0 ? x : x, y, 3, white);
+                round(c,x-14,y-14,x+14,y+14,8,0xFF27364D); Path car=new Path();car.moveTo(x,y-14);car.lineTo(x+10,y-3);car.lineTo(x+8,y+13);car.lineTo(x-8,y+13);car.lineTo(x-10,y-3);car.close();paint.setColor(a);paint.setStyle(Paint.Style.FILL);c.drawPath(car,paint);round(c,x-5,y-5,x+5,y+3,3,0xFFBFEAFF);
             }
         }
 
@@ -598,6 +602,16 @@ public class MainActivity extends Activity {
             }
         }
 
+
+        private void resetMatch3(){gemScore=0;gemMoves=25;gemSelected=-1;gemPulseAt=System.currentTimeMillis();for(int r=0;r<7;r++)for(int x=0;x<7;x++){int v;do{v=random.nextInt(5);}while((x>=2&&gems[r][x-1]==v&&gems[r][x-2]==v)||(r>=2&&gems[r-1][x]==v&&gems[r-2][x]==v));gems[r][x]=v;}}
+        private int gemColor(int v){return new int[]{0xFFFF5B8D,0xFFFFC857,0xFF4DE3C1,0xFF7D8CFF,0xFFB56BFF}[v%5];}
+        private boolean[][] gemMatches(){boolean[][]m=new boolean[7][7];for(int r=0;r<7;r++)for(int x=0;x<7;x++){if(x<5&&gems[r][x]>=0&&gems[r][x]==gems[r][x+1]&&gems[r][x]==gems[r][x+2]){int k=x;while(k<7&&gems[r][k]==gems[r][x])m[r][k++]=true;}if(r<5&&gems[r][x]>=0&&gems[r][x]==gems[r+1][x]&&gems[r][x]==gems[r+2][x]){int k=r;while(k<7&&gems[k][x]==gems[r][x])m[k++][x]=true;}}return m;}
+        private int gemCount(boolean[][]m){int n=0;for(int r=0;r<7;r++)for(int x=0;x<7;x++)if(m[r][x])n++;return n;}
+        private void selectGem(int idx){if(idx<0||idx>=49)return;if(gemSelected<0){gemSelected=idx;return;}if(gemSelected==idx){gemSelected=-1;return;}int r=gemSelected/7,x=gemSelected%7,rr=idx/7,xx=idx%7;if(Math.abs(r-rr)+Math.abs(x-xx)==1&&gemMoves>0){int t=gems[r][x];gems[r][x]=gems[rr][xx];gems[rr][xx]=t;boolean[][]m=gemMatches();if(gemCount(m)==0){t=gems[r][x];gems[r][x]=gems[rr][xx];gems[rr][xx]=t;}else{gemMoves--;for(int chain=0;chain<5&&gemCount(m)>0;chain++){int n=gemCount(m);gemScore+=n*10+(n>=4?50:0);for(int y=0;y<7;y++)for(int z=0;z<7;z++)if(m[y][z])gems[y][z]=-1;for(int z=0;z<7;z++){int wr=6;for(int y=6;y>=0;y--)if(gems[y][z]>=0)gems[wr--][z]=gems[y][z];while(wr>=0)gems[wr--][z]=random.nextInt(5);}m=gemMatches();}gemPulseAt=System.currentTimeMillis();}}gemSelected=-1;if(gemMoves<=0)gemMoves=25;}
+        private void drawMatch3(Canvas c){float board=Math.min(w-32,h-190),cell=board/7f,bx=(w-board)/2f,by=Math.max(93,(h-board-62)/2f);round(c,18,66,w-18,h-51,20,0xFF171F36);text(c,"ניקוד "+gemScore,bx,by-15,12,white,true,Paint.Align.LEFT);text(c,"מהלכים "+gemMoves,bx+board,by-15,12,mint,true,Paint.Align.RIGHT);for(int r=0;r<7;r++)for(int x=0;x<7;x++){float px=bx+x*cell,py=by+r*cell;round(c,px+2,py+2,px+cell-2,py+cell-2,Math.max(4,cell*.24f),0xFF242E49);float pulse=System.currentTimeMillis()-gemPulseAt<600?(float)Math.sin((System.currentTimeMillis()-gemPulseAt)/70.0)*1.4f:0;float rad=cell*.30f+(gemSelected==r*7+x?2.5f:Math.max(0,pulse));circle(c,px+cell/2,py+cell/2,rad+2,0x553D4669);circle(c,px+cell/2,py+cell/2,rad,gemColor(gems[r][x]));circle(c,px+cell*.39f,py+cell*.36f,Math.max(1.5f,cell*.075f),0xAAFFFFFF);if(gemSelected==r*7+x)strokeRound(c,px+2,py+2,px+cell-2,py+cell-2,cell*.2f,white,2);}text(c,"בחר שני תכשיטים סמוכים כדי ליצור קומבו",w/2,by+board+24,10,muted,false,Paint.Align.CENTER);if(System.currentTimeMillis()-gemPulseAt<600)text(c,"COMBO!",w/2,by+board+43,13,0xFFFFC857,true,Paint.Align.CENTER);}
+        private void resetRacer(){carX=.5f;roadSpeed=5.2f;raceScore=0;raceLives=3;raceStarted=false;raceOver=false;for(int i=0;i<roadLines.length;i++)roadLines[i]=i*72;for(int i=0;i<obstacleY.length;i++){obstacleX[i]=.25f+(i%3)*.25f;obstacleY[i]=-80-i*150;}lastTick=System.currentTimeMillis();}
+        private void drawRacer(Canvas c){float top=80,bottom=h-57,rw=Math.min(w-32,300),left=(w-rw)/2f,right=left+rw;gradient(c,left,top,right,bottom,22,0xFF202B49,0xFF10182C);round(c,left+rw*.08f,top,left+rw*.11f,bottom,2,0xFFFFC857);round(c,right-rw*.11f,top,right-rw*.08f,bottom,2,0xFFFFC857);float travel=raceStarted?(System.currentTimeMillis()-lastTick)*.2f:0;for(int i=0;i<roadLines.length;i++){float yy=top+((roadLines[i]+travel)%(bottom-top+35));round(c,w/2f-2,yy,w/2f+2,yy+23,3,0xFF8793B3);}text(c,"DISTANCE "+raceScore+" m",left+6,top-13,10,white,true,Paint.Align.LEFT);text(c,"♥ "+raceLives,right-6,top-13,11,0xFFFF658B,true,Paint.Align.RIGHT);for(int i=0;i<obstacleY.length;i++)if(obstacleY[i]>top-35&&obstacleY[i]<bottom+35){float ox=left+rw*obstacleX[i],oy=obstacleY[i];round(c,ox-13,oy-17,ox+13,oy+17,7,0xFF6E2C47);round(c,ox-10,oy-15,ox+10,oy+15,6,0xFFFF668B);}float px=left+rw*carX,py=bottom-47;circle(c,px,py+12,22,0x333DE6FF);Path car=new Path();car.moveTo(px,py-25);car.lineTo(px+13,py-10);car.lineTo(px+11,py+20);car.lineTo(px-11,py+20);car.lineTo(px-13,py-10);car.close();paint.setColor(0xFF54D7FF);paint.setStyle(Paint.Style.FILL);c.drawPath(car,paint);round(c,px-7,py-12,px+7,py+1,4,0xFFDAF7FF);if(!raceStarted&&!raceOver){round(c,w*.18f,h*.42f,w*.82f,h*.55f,16,0xDD11182B);text(c,"מוכנים למרוץ?",w/2,h*.47f,18,white,true,Paint.Align.CENTER);text(c,"לחץ OK או גע במסך",w/2,h*.51f,10,mint,false,Paint.Align.CENTER);}if(raceOver){round(c,w*.15f,h*.38f,w*.85f,h*.59f,18,0xEE11182B);text(c,"המרוץ הסתיים",w/2,h*.45f,19,white,true,Paint.Align.CENTER);text(c,"מרחק: "+raceScore+" מטר",w/2,h*.49f,12,mint,true,Paint.Align.CENTER);}}
+        private void stepRacer(){long now=System.currentTimeMillis();float dt=Math.min(2.5f,Math.max(.3f,(now-lastTick)/16f));lastTick=now;roadSpeed=Math.min(12,roadSpeed+.006f);raceScore+=(int)(roadSpeed*dt);for(int i=0;i<roadLines.length;i++){roadLines[i]+=roadSpeed*dt*2.3f;if(roadLines[i]>h)roadLines[i]=0;}for(int i=0;i<obstacleY.length;i++){obstacleY[i]+=roadSpeed*dt*1.6f;if(obstacleY[i]>h-65){obstacleY[i]=-random.nextInt(130)-65;obstacleX[i]=.22f+random.nextInt(57)/100f;}if(obstacleY[i]>h-125&&obstacleY[i]<h-76&&Math.abs(obstacleX[i]-carX)<.13f){raceLives--;obstacleY[i]=-160;if(raceLives<=0){raceOver=true;raceStarted=false;}}}}
         private void updateGame() {
             long now = System.currentTimeMillis();
             if (screen == SNAKE && snakeStarted && !snakeOver && now - lastTick >= 145) {
@@ -608,7 +622,7 @@ public class MainActivity extends Activity {
                 revealed[firstCard] = false; revealed[secondCard] = false; firstCard = -1; secondCard = -1; hideCardsAt = 0; invalidate();
             } else if (screen == REACTION && reactionState == 1 && now >= reactionGoAt) {
                 reactionState = 2; reactionShownAt = now; invalidate();
-            }
+            } else if (screen == RACER && raceStarted && !raceOver && now-lastTick>=16) { stepRacer(); invalidate(); }
         }
 
         private void openGame(int id) {
@@ -618,6 +632,8 @@ public class MainActivity extends Activity {
             else if (screen == MEMORY) resetMemory();
             else if (screen == BREAKER) resetBreaker();
             else if (screen == REACTION) resetReaction();
+            else if (screen == MATCH3) resetMatch3();
+            else if (screen == RACER) resetRacer();
             requestFocus(); invalidate();
         }
         private void restartCurrent() {
@@ -626,9 +642,11 @@ public class MainActivity extends Activity {
             else if (screen == MEMORY) resetMemory();
             else if (screen == BREAKER) resetBreaker();
             else if (screen == REACTION) resetReaction();
+            else if (screen == MATCH3) resetMatch3();
+            else if (screen == RACER) resetRacer();
             invalidate();
         }
-        void goHome() { screen = HOME; selected = Math.min(selected, 4); requestFocus(); invalidate(); }
+        void goHome() { screen = HOME; selected = Math.min(selected, 6); requestFocus(); invalidate(); }
 
         @Override public boolean onKeyDown(int keyCode, KeyEvent event) {
             boolean left = keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_4;
@@ -642,9 +660,9 @@ public class MainActivity extends Activity {
             }
             if (screen == HOME) {
                 if (left && selected % 2 == 1) selected--;
-                else if (right && selected % 2 == 0 && selected < 4) selected++;
+                else if (right && selected % 2 == 0 && selected < 6) selected++;
                 else if (up) selected = Math.max(0, selected - 2);
-                else if (down) selected = selected < 2 ? selected + 2 : selected < 4 ? 4 : 4;
+                else if (down) selected = selected < 2 ? selected + 2 : selected < 4 ? selected + 2 : selected < 6 ? 6 : 6;
                 else if (ok) { openGame(selected); return true; }
                 invalidate(); return left || right || up || down || ok;
             }
@@ -676,6 +694,10 @@ public class MainActivity extends Activity {
                 else if (right) paddleX = Math.min(breakerBoardW() - 61, paddleX + 14);
             } else if (screen == REACTION) {
                 if (ok) pressReaction();
+            } else if (screen == MATCH3) {
+                if(left)gemSelected=gemSelected<0?0:Math.max(0,gemSelected-1);else if(right)gemSelected=gemSelected<0?0:Math.min(48,gemSelected+1);else if(up)gemSelected=gemSelected<0?0:Math.max(0,gemSelected-7);else if(down)gemSelected=gemSelected<0?0:Math.min(48,gemSelected+7);else if(ok)selectGem(gemSelected);
+            } else if (screen == RACER) {
+                if(ok){if(raceOver)resetRacer();else{raceStarted=true;lastTick=System.currentTimeMillis();}}else if(left)carX=Math.max(.22f,carX-.10f);else if(right)carX=Math.min(.78f,carX+.10f);
             }
             invalidate();
             return true;
@@ -688,8 +710,8 @@ public class MainActivity extends Activity {
                 float dx = x - downX, dy = y - downY;
                 if (screen == HOME) {
                     if (Math.abs(dy) > 28) {
-                        if (selected == 4 && dy > 0) selected = 2;
-                        else if (dy < 0) selected = 4;
+                        if (selected == 6 && dy > 0) selected = 4;
+                        else if (dy < 0) selected = 6;
                         invalidate(); return true;
                     }
                     boolean compact = h < 390;
@@ -698,11 +720,11 @@ public class MainActivity extends Activity {
                     float ch = compact ? Math.min(103, Math.max(74, h - top - 71)) : 119;
                     float step = ch + 10;
                     int hit = -1;
-                    for (int i = 0; i < 5; i++) {
+                    for (int i = 0; i < 7; i++) {
                         int row = i / 2, col = i % 2;
                         float cx = 18 + col * (cw + 10), cy = top + row * step - scrollY;
-                        float cardW = i == 4 ? w - 36 : cw;
-                        if (i == 4) cx = 18;
+                        float cardW = i == 6 ? w - 36 : cw;
+                        if (i == 6) cx = 18;
                         if (x >= cx && x <= cx + cardW && y >= cy && y <= cy + ch) hit = i;
                     }
                     if (hit >= 0) { selected = hit; openGame(hit); }
@@ -745,6 +767,8 @@ public class MainActivity extends Activity {
                         lastTick = System.currentTimeMillis();
                     }
                 } else if (screen == REACTION) pressReaction();
+                else if (screen == MATCH3) {float board=Math.min(w-32,h-190),cell=board/7f,bx=(w-board)/2f,by=Math.max(93,(h-board-62)/2f);int col=(int)((x-bx)/cell),row=(int)((y-by)/cell);if(row>=0&&row<7&&col>=0&&col<7)selectGem(row*7+col);}
+                else if (screen == RACER) {if(raceOver)resetRacer();else if(!raceStarted){raceStarted=true;lastTick=System.currentTimeMillis();}else {if(x<w/2)carX=Math.max(.22f,carX-.13f);else carX=Math.min(.78f,carX+.13f);lastTick=System.currentTimeMillis();}}
                 invalidate(); return true;
             }
             return true;
