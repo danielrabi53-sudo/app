@@ -157,7 +157,9 @@ public class MainActivity extends Activity {
             boolean animating = (screen == SNAKE && snakeStarted && !snakeOver)
                     || (screen == BREAKER && breakerStarted && !breakerOver)
                     || (screen == MEMORY && secondCard != -1 && hideCardsAt > 0)
-                    || (screen == REACTION && reactionState == 1);
+                    || (screen == REACTION && reactionState == 1)
+                    || (screen == MATCH3 && System.currentTimeMillis() - gemPulseAt < 600)
+                    || (screen == RACER && raceStarted && !raceOver);
             if (animating) postInvalidateDelayed(45);
         }
 
