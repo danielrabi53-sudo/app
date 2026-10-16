@@ -1,17 +1,21 @@
-# Pocket Arcade
+# Pocket Arcade 🎮
 
-A lightweight, offline mini-game collection designed for Android 4.4.4 (API 19) devices, including keypad/feature-phone style devices.
+משחקייה קלה וצבעונית, לשימוש ללא חיבור לאינטרנט, עם תמיכה במסך מגע ובמקשי החיצים/OK של מכשירים עם מקשים.
 
-## Planned games
-- Snake
-- 2048
-- Memory Match
-- Brick Breaker
-- Quick Tap
+## המשחקים
+- **נחש** — אוספים נקודות ונזהרים מהקירות ומהזנב.
+- **2048** — מחברים אריחים ומנסים להגיע ל־2048.
+- **זיכרון** — מוצאים שמונה זוגות קלפים.
+- **שובר לבנים** — מזיזים את המשטח, שוברים לבנים ושומרים על הכדור.
+- **תגובה מהירה** — מודדים את זמן התגובה בלי ללחוץ מוקדם.
 
-## Compatibility
-- Minimum Android version: 4.4.4 (API 19)
-- Native Java and Android Canvas; no Internet permission and no external runtime dependencies.
-- D-pad / keypad navigation and touchscreen controls where supported.
+## התאמה
+- Android 4.4.4 ומעלה (minSdk 19).
+- כתוב ב־Java וב־Android Canvas; אין ספריות ריצה חיצוניות.
+- המשחקים פועלים אופליין ואינם דורשים הרשאות רשת.
+- מקשי ניווט: חצים או 2/4/6/8, אישור: OK / Enter / 5, חזרה: Back.
 
-Build instructions and GitHub Actions APK artifact instructions will be added with the Android project.
+## יצירת APK
+בכל push ל־`main` תהליך GitHub Actions מריץ `assembleDebug` ומעלה את הקובץ `app-debug.apk` כ־artifact בשם **Pocket-Arcade-debug-APK**. אפשר גם להפעיל את התהליך ידנית דרך לשונית Actions → Build Pocket Arcade APK → Run workflow.
+
+הקובץ שנבנה הוא APK מסוג debug, מתאים להתקנה ידנית לצורכי בדיקה; אינו חתום כמוצר הפצה בחנות.
