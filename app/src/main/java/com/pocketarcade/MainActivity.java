@@ -159,27 +159,34 @@ public class MainActivity extends Activity {
         }
 
         private void drawHome(Canvas c) {
+            boolean compact = h < 390;
             float left = 18, right = w - 18;
-            gradient(c, left, 16, right, 143, 24, Color.rgb(32, 60, 87), Color.rgb(34, 38, 77));
-            circle(c, w - 35, 35, 45, 0x203DE6C8);
-            circle(c, w - 20, 107, 24, 0x20FFFFFF);
-            round(c, 30, 29, 39, 38, 4, mint);
-            text(c, "POCKET ARCADE", 47, 37, 10, white, true, Paint.Align.LEFT);
-            round(c, w - 95, 25, w - 30, 44, 10, 0x303FE9C5);
-            circle(c, w - 84, 34.5f, 3, mint);
-            text(c, "OFFLINE", w - 75, 38, 8, mint, true, Paint.Align.LEFT);
-            text(c, "המשחק הבא שלך", right - 12, 76, Math.min(22, w * 0.095f), white, true, Paint.Align.RIGHT);
-            text(c, "מתחיל כאן", right - 12, 102, Math.min(22, w * 0.095f), white, true, Paint.Align.RIGHT);
-            text(c, "5 משחקים · בלי אינטרנט · בלי סיבוכים", right - 12, 126, Math.min(10, w * 0.047f), 0xFFD5E0F5, false, Paint.Align.RIGHT);
+            float heroTop = compact ? 12 : 16;
+            float heroBottom = compact ? 112 : 143;
+            gradient(c, left, heroTop, right, heroBottom, 24, Color.rgb(32, 60, 87), Color.rgb(34, 38, 77));
+            circle(c, w - 35, compact ? 31 : 35, compact ? 34 : 45, 0x203DE6C8);
+            circle(c, w - 20, compact ? 83 : 107, compact ? 20 : 24, 0x20FFFFFF);
+            round(c, 30, compact ? 22 : 29, 39, compact ? 31 : 38, 4, mint);
+            text(c, "POCKET ARCADE", 47, compact ? 30 : 37, 10, white, true, Paint.Align.LEFT);
+            round(c, w - 95, compact ? 18 : 25, w - 30, compact ? 37 : 44, 10, 0x303FE9C5);
+            circle(c, w - 84, compact ? 27.5f : 34.5f, 3, mint);
+            text(c, "OFFLINE", w - 75, compact ? 31 : 38, 8, mint, true, Paint.Align.LEFT);
+            text(c, "המשחק הבא שלך", right - 12, compact ? 60 : 76, Math.min(22, w * 0.095f), white, true, Paint.Align.RIGHT);
+            text(c, "מתחיל כאן", right - 12, compact ? 83 : 102, Math.min(22, w * 0.095f), white, true, Paint.Align.RIGHT);
+            text(c, "5 משחקים · בלי אינטרנט · בלי סיבוכים", right - 12, compact ? 102 : 126, Math.min(10, w * 0.047f), 0xFFD5E0F5, false, Paint.Align.RIGHT);
 
-            text(c, "בחר משחק", 20, 165, 17, white, true, Paint.Align.LEFT);
-            text(c, "החצים לבחירה  ·  OK להפעלה", w - 20, 164, 9, muted, false, Paint.Align.RIGHT);
+            float sectionY = compact ? 132 : 165;
+            text(c, "בחר משחק", 20, sectionY, 17, white, true, Paint.Align.LEFT);
+            text(c, "החצים לבחירה  ·  OK להפעלה", w - 20, sectionY - 1, 9, muted, false, Paint.Align.RIGHT);
 
-            float top = 180;
+            float top = compact ? 145 : 180;
             float gap = 10;
             float cw = (w - 46) / 2f;
-            float ch = 119;
-            scrollY = selected == 4 ? 128 : 0;
+            float ch = compact ? Math.min(103, Math.max(74, h - top - 71)) : 119;
+            float step = ch + gap;
+            int visibleRows = Math.max(1, (int) ((h - 54 - top) / step));
+            int selectedRow = selected / 2;
+            scrollY = selectedRow >= visibleRows ? selectedRow * step : 0;
             c.save();
             c.clipRect(0, top, w, h - 54);
             c.translate(0, -scrollY);
@@ -187,10 +194,9 @@ public class MainActivity extends Activity {
                 int row = i / 2;
                 int col = i % 2;
                 float x = 18 + col * (cw + 10);
-                float y = top + row * (ch + gap);
-                float cardW = (i == 4) ? cw : cw;
+                float y = top + row * step;
                 if (i == 4) x = 18;
-                drawGameCard(c, i, x, y, cardW, ch, selected == i);
+                drawGameCard(c, i, x, y, cw, ch, selected == i);
             }
             c.restore();
 
@@ -578,8 +584,6 @@ public class MainActivity extends Activity {
                 text(c, "מוקדם!", cx, cy + 8, 19, white, true, Paint.Align.CENTER);
                 text(c, "חכה עד שהעיגול יאיר", cx, cy + 111, 10, orange, true, Paint.Align.CENTER);
             }
-            round(c, 34, h - 91, w - 34, h - 65, 9, 0xFF17223B);
-            text(c, "המטרה: להגיב רק כשהמסך מואר", w / 2, h - 74, 9, muted, false, Paint.Align.CENTER);
         }
 
         private void updateGame() {
@@ -676,12 +680,15 @@ public class MainActivity extends Activity {
                         else if (dy < 0) selected = 4;
                         invalidate(); return true;
                     }
-                    float top = 180 - (selected == 4 ? 128 : 0);
-                    float cw = (w - 46) / 2f, ch = 119;
+                    boolean compact = h < 390;
+                    float top = compact ? 145 : 180;
+                    float cw = (w - 46) / 2f;
+                    float ch = compact ? Math.min(103, Math.max(74, h - top - 71)) : 119;
+                    float step = ch + 10;
                     int hit = -1;
                     for (int i = 0; i < 5; i++) {
                         int row = i / 2, col = i % 2;
-                        float cx = 18 + col * (cw + 10), cy = 180 + row * (ch + 10) - scrollY;
+                        float cx = 18 + col * (cw + 10), cy = top + row * step - scrollY;
                         if (i == 4) cx = 18;
                         if (x >= cx && x <= cx + cw && y >= cy && y <= cy + ch) hit = i;
                     }
