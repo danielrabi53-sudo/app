@@ -195,8 +195,9 @@ public class MainActivity extends Activity {
                 int col = i % 2;
                 float x = 18 + col * (cw + 10);
                 float y = top + row * step;
+                float cardW = i == 4 ? w - 36 : cw;
                 if (i == 4) x = 18;
-                drawGameCard(c, i, x, y, cw, ch, selected == i);
+                drawGameCard(c, i, x, y, cardW, ch, selected == i);
             }
             c.restore();
 
@@ -689,8 +690,9 @@ public class MainActivity extends Activity {
                     for (int i = 0; i < 5; i++) {
                         int row = i / 2, col = i % 2;
                         float cx = 18 + col * (cw + 10), cy = top + row * step - scrollY;
+                        float cardW = i == 4 ? w - 36 : cw;
                         if (i == 4) cx = 18;
-                        if (x >= cx && x <= cx + cw && y >= cy && y <= cy + ch) hit = i;
+                        if (x >= cx && x <= cx + cardW && y >= cy && y <= cy + ch) hit = i;
                     }
                     if (hit >= 0) { selected = hit; openGame(hit); }
                     else if (y < 62 && x < 75) { selected = 0; }
