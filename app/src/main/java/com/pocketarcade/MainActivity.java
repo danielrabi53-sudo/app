@@ -203,7 +203,7 @@ public class MainActivity extends Activity {
 
             round(c, 18, h - 43, w - 18, h - 12, 12, 0xFF171F36);
             circle(c, 31, h - 27.5f, 4, mint);
-            text(c, "נשמר אוטומטית במכשיר", 42, h - 24, 9, muted, false, Paint.Align.LEFT);
+            text(c, "משחקים מקומיים · ללא רשת", 42, h - 24, 9, muted, false, Paint.Align.LEFT);
             text(c, "v1.0", w - 28, h - 24, 9, 0xFF7F90B2, true, Paint.Align.RIGHT);
         }
 
