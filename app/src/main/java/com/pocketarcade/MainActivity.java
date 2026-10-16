@@ -236,7 +236,7 @@ public class MainActivity extends Activity {
 
         private void drawMiniIcon(Canvas c, int i, float x, float y, float s, int a) {
             if (i == 0) {
-                round(c, x - 11, y - 8, x + 12, y + 8, 6, 0x334FFFFFFF);
+                round(c, x - 11, y - 8, x + 12, y + 8, 6, 0x334FFFFF);
                 circle(c, x - 5, y, 4, a); circle(c, x + 3, y, 4, a); circle(c, x + 11, y, 4, a);
                 circle(c, x + 13, y - 5, 2, white);
             } else if (i == 1) {
