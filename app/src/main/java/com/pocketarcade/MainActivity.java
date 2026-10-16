@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
     }
 
     private class ArcadeView extends View {
-        static final int HOME = 0, SNAKE = 1, MERGE = 2, MEMORY = 3, BREAKER = 4, REACTION = 5;
+        static final int HOME = 0, SNAKE = 1, MERGE = 2, MEMORY = 3, BREAKER = 4, REACTION = 5, MATCH3 = 6, RACER = 7;
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         private final Random random = new Random();
         private final float density;
@@ -58,10 +58,10 @@ public class MainActivity extends Activity {
         private final int purple = Color.rgb(157, 122, 255);
         private final int orange = Color.rgb(255, 179, 92);
         private final int blue = Color.rgb(93, 169, 255);
-        private final String[] titles = {"נחש", "2048", "זיכרון", "שובר לבנים", "תגובה מהירה"};
-        private final String[] subtitles = {"אוספים נקודות", "מחברים מספרים", "מוצאים זוגות", "פוגעים ושוברים", "כמה מהר תגיב?"};
-        private final String[] tags = {"ARCADE", "PUZZLE", "MEMORY", "ACTION", "REFLEX"};
-        private final int[] accents = {mint, purple, orange, blue, Color.rgb(255, 111, 153)};
+        private final String[] titles = {"נחש", "2048", "זיכרון", "שובר לבנים", "תגובה מהירה", "קראש צבעוני", "מרוץ טורבו"};
+        private final String[] subtitles = {"אוספים נקודות", "מחברים מספרים", "מוצאים זוגות", "פוגעים ושוברים", "כמה מהר תגיב?", "שלשות וקומבואים", "התחמק ממכשולים"};
+        private final String[] tags = {"ARCADE", "PUZZLE", "MEMORY", "ACTION", "REFLEX", "MATCH 3", "RACING"};
+        private final int[] accents = {mint, purple, orange, blue, Color.rgb(255, 111, 153), Color.rgb(255, 91, 177), Color.rgb(255, 193, 70)};
 
         // Snake state
         private final int[] snakeX = new int[256];
@@ -87,6 +87,15 @@ public class MainActivity extends Activity {
         private float ballX, ballY, ballVX, ballVY, paddleX;
         private int breakerScore, lives;
         private boolean breakerStarted, breakerOver;
+
+        private final int[][] gems = new int[7][7];
+        private int gemSelected = -1, gemScore, gemMoves;
+        private long gemPulseAt;
+        private final float[] roadLines = new float[8];
+        private final float[] obstacleX = new float[4], obstacleY = new float[4];
+        private float carX = .5f, roadSpeed = 5.2f;
+        private int raceScore, raceLives;
+        private boolean raceStarted, raceOver;
 
         // Reaction state: 0 idle, 1 waiting, 2 go, 3 result, 4 false start
         private int reactionState, reactionMs;
@@ -190,13 +199,13 @@ public class MainActivity extends Activity {
             c.save();
             c.clipRect(0, top, w, h - 54);
             c.translate(0, -scrollY);
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 7; i++) {
                 int row = i / 2;
                 int col = i % 2;
                 float x = 18 + col * (cw + 10);
                 float y = top + row * step;
-                float cardW = i == 4 ? w - 36 : cw;
-                if (i == 4) x = 18;
+                float cardW = i == 6 ? w - 36 : cw;
+                if (i == 6) x = 18;
                 drawGameCard(c, i, x, y, cardW, ch, selected == i);
             }
             c.restore();
@@ -249,13 +258,15 @@ public class MainActivity extends Activity {
 
         private void drawGame(Canvas c) {
             int i = screen - 1;
-            if (i < 0 || i > 4) i = 0;
+            if (i < 0 || i > 6) i = 0;
             drawGameHeader(c, titles[i], tags[i], accents[i]);
             if (screen == SNAKE) drawSnake(c);
             else if (screen == MERGE) drawMerge(c);
             else if (screen == MEMORY) drawMemory(c);
             else if (screen == BREAKER) drawBreaker(c);
             else if (screen == REACTION) drawReaction(c);
+            else if (screen == MATCH3) drawMatch3(c);
+            else if (screen == RACER) drawRacer(c);
             drawFooter(c);
         }
 
